@@ -19,6 +19,7 @@ class Adjudicator:
 
   def _update_drawn_state(self, game_state: GameState) -> None:
     game_state.game_over = True
+    game_state.winner = "DRAW"
 
   def _is_a_winning_line(self, line: list) -> bool:
     return len(set(line)) == 1 and line[0] is not None

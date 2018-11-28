@@ -32,7 +32,7 @@ class Board:
   def _initialise(self):
     self.rows = [[None for i in range(self.DIMENSION)] for j in range(self.DIMENSION)]
 
-  def _get_flat_string_board(self):
+  def get_flat_string_board(self):
     return ''.join(
       [str(space) if space else '0' for row in self.rows for space in row]
     )

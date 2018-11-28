@@ -27,7 +27,7 @@ class TicTacToe:
 
       if self.board.is_valid_move(move):
         self.game_state.move_count += 1
-        self.move_history.append((self.board._get_flat_string_board(), move.row * 3 + move.column))
+        self.move_history.append((self.board.get_flat_string_board(), move.row * 3 + move.column))
         self.board.play_move(move)
         self.adjudicator.adjudicate(self.board, self.game_state, active_player)
 
