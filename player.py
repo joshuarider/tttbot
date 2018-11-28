@@ -1,6 +1,6 @@
 from move import Move
 from board import Board
-from play_strategy import PlayStrategy
+from strategies import PlayStrategy
 
 
 class Player:

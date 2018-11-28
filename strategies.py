@@ -1,6 +1,14 @@
+import abc
+from random import randint
+
 from board import Board
 from move import Move
-from play_strategy import PlayStrategy
+
+
+class PlayStrategy(abc.ABC):
+  @abc.abstractmethod
+  def get_move(self, board: Board) -> Move:
+    pass
 
 class HumanStrategy(PlayStrategy):
   def get_move(self, board: Board) -> Move:
@@ -20,3 +28,10 @@ class HumanStrategy(PlayStrategy):
       return self._get_move_input(prompt, maximum_input)
     except ValueError as e:
       return self._get_move_input(prompt, maximum_input)
+
+class RandomStrategy(PlayStrategy):
+  def get_move(self, board: Board) -> Move:
+    return Move(
+      randint(0, board.DIMENSION - 1),
+      randint(0, board.DIMENSION - 1)
+    )
