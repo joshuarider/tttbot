@@ -15,6 +15,7 @@ class Board:
       return False
 
     self.rows[move.row][move.column] = move.value
+    self.move_list.append(move.row * 3 + move.column)
 
     return True
 
@@ -31,8 +32,9 @@ class Board:
 
   def _initialise(self):
     self.rows = [[None for i in range(self.DIMENSION)] for j in range(self.DIMENSION)]
+    self.move_list = []
 
-  def get_flat_string_board(self):
+  def flatten(self):
     return ''.join(
       [str(space) if space else '0' for row in self.rows for space in row]
     )

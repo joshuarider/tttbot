@@ -14,3 +14,6 @@ class Player:
     move.value = self.symbol
 
     return move
+
+  def clean_up(self):
+    self.play_strategy.clean_up()
