@@ -1,6 +1,5 @@
 import os
 import abc
-from random import randint
 
 import pickle
 import numpy as np
@@ -46,8 +45,8 @@ class HumanStrategy(PlayStrategy):
 class RandomStrategy(PlayStrategy):
   def get_move(self, board: Board) -> Move:
     return Move(
-      randint(0, board.DIMENSION - 1),
-      randint(0, board.DIMENSION - 1)
+      np.random.randint(0, board.DIMENSION),
+      np.random.randint(0, board.DIMENSION)
     )
 
   #FIXME interface segregation
@@ -56,17 +55,23 @@ class RandomStrategy(PlayStrategy):
 
 class GoFirstQTableStrategy(PlayStrategy):
   EXPERIENCE_FILE = 'go_first_strategy.pickle'
-  NOISE_LEVEL = 0.04
+  NOISE_LEVEL = 0.02
+  LEARNING_RATE = 0.5
+  DISCOUNT_RATE = 0.95
+  REWARDS = {
+    'win' : 1.,
+    'draw' : 0.5,
+  }
 
-  def __init__(self, adjudicator: Adjudicator):
-    self.mini_judge = adjudicator
+  def __init__(self):
+    self.mini_judge = Adjudicator()
     self.Q = {}
     if os.path.isfile(GoFirstQTableStrategy.EXPERIENCE_FILE):
       with open(GoFirstQTableStrategy.EXPERIENCE_FILE, 'rb') as handle:
         self.Q = pickle.load(handle)
 
   def get_move(self, board: Board) -> Move:
-    flat_board = self._flatten_board(board)
+    flat_board = board.flatten()
 
     if flat_board not in self.Q:
       self.Q[flat_board] = np.zeros(9)
@@ -81,13 +86,10 @@ class GoFirstQTableStrategy(PlayStrategy):
 
     reward = self._get_reward(board, move)
 
-    if reward not in [0.5, 1.]:
+    if reward not in GoFirstQTableStrategy.REWARDS.values():
       updated_flat_board = self._add_best_enemy_move_to_flat_board(updated_flat_board)
 
-    learning_rate = 0.5
-    y = 0.95
-
-    self.Q[flat_board][chosen_move_index] = self.Q[flat_board][chosen_move_index] + learning_rate * (reward + y * np.max(self._get_possibilities(updated_flat_board)) - self.Q[flat_board][chosen_move_index])
+    self.Q[flat_board][chosen_move_index] = self.Q[flat_board][chosen_move_index] + self.LEARNING_RATE * (reward + self.DISCOUNT_RATE * np.max(self._get_possibilities(updated_flat_board)) - self.Q[flat_board][chosen_move_index])
 
     return move
 
@@ -113,13 +115,8 @@ class GoFirstQTableStrategy(PlayStrategy):
 
   def _get_reward(self, board: Board, move: Move) -> int:
     if self.mini_judge.is_winning_move(board, move, '1'):
-      return 1.
-    elif sum([1 if item == None else 0 for row in board.rows for item in row]) == 1:
-      return 0.5
+      return GoFirstQTableStrategy.REWARDS['win']
+    elif len([1 for row in board.rows for item in row if item is None]) == 1:
+      return GoFirstQTableStrategy.REWARDS['draw']
 
     return 0
-
-  def _flatten_board(self, board: Board) -> str:
-    return ''.join(
-      [str(space) if space else '0' for row in board.rows for space in row]
-    )

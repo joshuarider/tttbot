@@ -5,7 +5,7 @@ from adjudicator import Adjudicator
 
 
 def main():
-  player_1 = Player('1', '1', strategies.GoFirstQTableStrategy(Adjudicator()))
+  player_1 = Player('1', '1', strategies.GoFirstQTableStrategy())
   player_list = [
       player_1,
       Player('2', '2', strategies.RandomStrategy())
@@ -18,12 +18,12 @@ def main():
     game.start()
     print(game.game_state.winner)
     # if game.game_state.winner == '2':
-    #   print(' --- GAME {} ---'.format(i))
     #   print(game.board.flatten())
     #   for move in game.board.move_list:
     #     print(move)
 
-  player_1.clean_up()
+  for player in player_list:
+    player.clean_up()
 
 if __name__ == '__main__':
   main()
